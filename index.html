@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Khodam Checker Viral</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+body{
+ margin:0;font-family:Poppins;
+ background:#111;color:#fff;
+ text-align:center;overflow:hidden
+}
+.screen{display:none;min-height:100vh;padding-top:70px}
+.active{display:block}
+
+.box{
+ background:rgba(0,0,0,.7);
+ width:90%;max-width:360px;
+ margin:auto;padding:30px;
+ border-radius:22px;
+ backdrop-filter:blur(10px)
+}
+
+input{
+ width:90%;padding:12px;
+ border-radius:12px;border:none
+}
+
+button{
+ padding:12px 26px;
+ border:none;border-radius:14px;
+ background:#ff004c;color:#fff;
+ font-size:16px;margin:6px;
+ cursor:pointer;
+ transition:opacity .3s ease,transform .2s ease
+}
+button.secondary{background:#ff004c}
+button.danger{background:#800}
+
+button:disabled{
+ opacity:0.45;
+ transform:scale(0.97);
+ cursor:not-allowed
+}
+
+/* EFFECT */
+#redOverlay{
+ position:fixed;inset:0;
+ background:rgba(255,0,0,.35);
+ opacity:0;pointer-events:none
+}
+.legendActive{animation:redPulse .8s infinite}
+.epicActive{animation:epicGlow 1s infinite}
+.insaneBg{
+ background:linear-gradient(120deg,#ff004c,#ffae00,#00ffae,#0066ff,#b300ff);
+ background-size:400%;
+ animation:rainbowBg 3s linear infinite
+}
+
+@keyframes redPulse{
+ 0%{opacity:0}50%{opacity:1}100%{opacity:0}
+}
+@keyframes epicGlow{
+ 0%{box-shadow:0 0 10px #d47cff}
+ 50%{box-shadow:0 0 45px #d47cff}
+ 100%{box-shadow:0 0 10px #d47cff}
+}
+@keyframes rainbowBg{
+ 0%{background-position:0%}
+ 100%{background-position:400%}
+}
+
+.insaneText{
+ font-weight:900;
+ background:linear-gradient(90deg,red,orange,yellow,lime,cyan,blue,violet);
+ background-size:400%;
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
+ animation:rainbowBg 2s linear infinite
+}
+
+/* HISTORY */
+#historyBox{
+ display:none;position:fixed;inset:0;
+ background:rgba(0,0,0,.85);
+ backdrop-filter:blur(8px)
+}
+#historyContent{
+ background:#111;width:90%;
+ max-width:360px;
+ margin:60px auto;
+ padding:20px;border-radius:20px;
+ text-align:left;font-size:13px
+}
+</style>
+</head>
+
+<body>
+<div id="redOverlay"></div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+<h1>🔮 KHODAM CHECKER 🔮</h1>
+<button onclick="go('game')">▶️ MULAI GAME</button><br>
+<button onclick="go('info')">📢 INFO KHODAM</button>
+</div>
+
+<!-- INFO -->
+<div class="screen" id="info">
+<div class="box">
+<h2>📜 INFO KHODAM</h2>
+<div>⚪ BIASA : <span id="countBiasa"></span> (80%)</div>
+<div>🟣 EPIC : <span id="countEpic"></span> (14%)</div>
+<div>🔴 LEGENDARIS : <span id="countLegend"></span> (5%)</div>
+<div>❗ INSANE : <span id="countInsane"></span> (1%)</div>
+<button class="secondary" onclick="go('home')">⬅ Kembali</button>
+</div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game">
+<div class="box" id="box">
+<input id="nama" placeholder="Nama kamu"><br>
+<button id="btn" onclick="cek()">Cek Khodam</button>
+<button class="secondary" onclick="toggleHistory()">📜 History / Koleksi</button>
+<button class="secondary" onclick="go('resetScreen')">🔄 Reset Data</button>
+<button class="secondary" onclick="go('home')">⬅ Kembali ke Menu</button>
+<div id="hasil"></div>
+</div>
+</div>
+
+<!-- RESET -->
+<div class="screen" id="resetScreen">
+<div class="box">
+<h2>⚠️ RESET DATA</h2>
+<p style="font-size:14px;opacity:.85">
+Semua koleksi & history akan dihapus.
+</p>
+<button class="danger" onclick="confirmReset()">🔥 YA, RESET</button>
+<button class="secondary" onclick="go('game')">⬅ Kembali</button>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div id="historyBox">
+<div id="historyContent">
+<h3>📦 KOLEKSI KHODAM</h3>
+<div id="historyList"></div>
+<button class="secondary" onclick="toggleHistory()" style="width:100%">⬅ Kembali</button>
+</div>
+</div>
+
+<script>
+function go(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+
+/* DATA */
+const insane=[
+ "Cewek Jepang 🇯🇵",
+ "Davina Karamoy 🫦",
+ "Kakak CEO 💲",
+ "Batu Giok Naga Suci 🐲",
+ "Tikus Kantor 🐀",
+ "Anak Ketua DPR 💵",
+ "Fisik Saitama One Punch Man 👊"
+];
+
+const legend=[
+ "Nyi Roro Kidul 🌊",
+ "Leak Bali 🔥",
+ "Banaspati Api 🔥",
+ "Genderuwo Hitam",
+ "Jin Ifrit Merah 👹",
+ "Raja Alas Gaib 🌳"
+];
+
+const epic=[
+ "Ksatria Kegelapan 🥶",
+ "Albert Einstein 😲",
+ "Sapu Emak 🧹",
+ "Nenek Penyayang 👵",
+ "Pacar 💕",
+ "Harimau Jawa 🐯",
+ "Harimau Sumatera 🐯",
+ "Laki-laki India 🇮🇳"
+];
+
+const biasa=[
+ "Sendok Dapur 🥄",
+ "Pocong Imut 🩷",
+ "Milk Tea Jumbo 🧊",
+ "Wewe Gombal 👀",
+ "Sinterklas 🎅",
+ "Penjaga Warung ☕",
+ "Penjaga Gerbang Sekolah 🏫",
+ "Tuyul 👶",
+ "Seblak Presto 🍴",
+ "Bekicot Magetan 🐌",
+ "Jepit Jemuran 📎",
+ "Anak Singa 🦁",
+ "Paman Berkacamata 🥸",
+ "Kosong tapi Kuat Mental 💪🗿",
+ "Panci Gosong 🍳",
+ "Dompet Tipis 💸",
+ "Mantan Baik Tidak Mau Balikan 🥲",
+ "Tikus Kos 🐭",
+
+ /* TAMBAHAN BARU */
+ "Ular Pemakan Orang 👦",
+ "Alarm Subuh Tapi Dimatikan ⏰",
+ "Galon Kos Kosong 🧴",
+ "Kopi Sachet Kebanyakan Gula ☕"
+];
+ 
+
+countInsane.textContent=insane.length;
+countLegend.textContent=legend.length;
+countEpic.textContent=epic.length;
+countBiasa.textContent=biasa.length;
+
+let collection=JSON.parse(localStorage.getItem("khodamCollection"))||
+{insane:[],legend:[],epic:[],biasa:[]};
+
+function saveAll(){
+ localStorage.setItem("khodamCollection",JSON.stringify(collection));
+ historyList.innerHTML=`
+ <b>❗ INSANE</b><br>${collection.insane.join("<br>")||"-"}<br><br>
+ <b>🔴 LEGENDARIS</b><br>${collection.legend.join("<br>")||"-"}<br><br>
+ <b>🟣 EPIC</b><br>${collection.epic.join("<br>")||"-"}<br><br>
+ <b>⚪ KHODAM BIASA</b><br>${collection.biasa.join("<br>")||"-"}
+ `;
+}
+saveAll();
+
+function toggleHistory(){
+ historyBox.style.display =
+ historyBox.style.display==="block"?"none":"block";
+}
+
+function confirmReset(){
+ localStorage.clear();
+ location.reload();
+}
+
+function clearEffects(){
+ box.classList.remove("epicActive");
+ redOverlay.classList.remove("legendActive");
+ document.body.classList.remove("insaneBg");
+}
+
+function pickUnique(arr,type){
+ let a=arr.filter(k=>!collection[type].includes(k));
+ if(!a.length) return null;
+ return a[Math.floor(Math.random()*a.length)];
+}
+
+function cek(){
+ if(!nama.value.trim()) return;
+ btn.disabled=true;
+ btn.textContent="⏳ Mengecek...";
+ clearEffects();
+
+ let r=Math.random()*100,khodam=null,label="",type="";
+ if(r<=1){
+ 
+  type="insane";label="❗ INSANE";
+  document.body.classList.add("insaneBg");
+  khodam=pickUnique(insane,type);
+ }
+ else if(r<=6){
+  type="legend";label="🔴 LEGENDARIS";
+  redOverlay.classList.add("legendActive");
+  khodam=pickUnique(legend,type);
+  setTimeout(()=>redOverlay.classList.remove("legendActive"),3000);
+ }
+ else if(r<=20){
+  type="epic";label="🟣 EPIC";
+  box.classList.add("epicActive");
+  khodam=pickUnique(epic,type);
+  setTimeout(()=>box.classList.remove("epicActive"),3000);
+ }
+ else{
+  type="biasa";label="⚪ KHODAM BIASA";
+  khodam=pickUnique(biasa,type);
+ }
+
+ /* POP-UP JIKA KOLEKSI KATEGORI HABIS */
+ if(!khodam){
+  let ask = confirm(
+   "🎉 Semua khodam "+type+" sudah terkumpul!\n\n"+
+   "Apakah kamu ingin RESET data dan mulai dari awal?"
+  );
+  if(ask){
+   localStorage.clear();
+   location.reload();
+  }else{
+   hasil.innerHTML="🏆 Koleksi "+type+" sudah LENGKAP!";
+   btn.disabled=false;
+   btn.textContent="Cek Khodam";
+  }
+  return;
+ }
+
+ collection[type].push(khodam);
+ saveAll();
+ hasil.innerHTML=`<div class="${type==='insane'?'insaneText':''}">
+ ${label}<br>${khodam}</div>`;
+
+ setTimeout(()=>{
+  btn.disabled=false;
+  btn.textContent="Cek Khodam";
+ },3000);
+}
+</script>
+</body>
+</html>
